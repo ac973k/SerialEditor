@@ -40,16 +40,19 @@ void SerialEditor::parseFile()
     }
 
     // Извлечение значений из бинарного файла
+    QString valueLock = QString::fromUtf8(fileData.mid(0x00, 16).trimmed());
     QString value1 = QString::fromUtf8(fileData.mid(0x10, 16).trimmed());
     QString value2 = QString::fromUtf8(fileData.mid(0x20, 16).trimmed());
 
     // Установка значений в QLineEdit
+    ui->lineEdit->setText(valueLock);
     ui->lineEdit_value1->setText(value1);
     ui->lineEdit_value2->setText(value2);
 }
 
 void SerialEditor::saveFile()
 {
+    QString valueLock = ui->lineEdit->text();
     QString value1 = ui->lineEdit_value1->text();
     QString value2 = ui->lineEdit_value2->text();
 
@@ -59,10 +62,11 @@ void SerialEditor::saveFile()
     }
 
     // Замена значений в бинарном файле
+    fileData.replace(0x00, 16, valueLock.toUtf8().leftJustified(16, '\0'));
     fileData.replace(0x10, 16, value1.toUtf8().leftJustified(16, '\0'));
     fileData.replace(0x20, 16, value2.toUtf8().leftJustified(16, '\0'));
 
-    QFile file(FILE_PATH);
+    QFile file("proinfo_patched.bin");
     if (!file.open(QIODevice::WriteOnly)) {
         QMessageBox::critical(this, "Ошибка", "Не удалось открыть файл для записи");
         return;
